@@ -200,7 +200,7 @@ jobs:
           artifactErrorsFailBuild: true
           artifacts: "/tmp/gzs/*.tar.gz,OpenTTD-patches/jgrpp-changelog.md"
           body: "See the [changelog](https://github.com/JGRennison/OpenTTD-patches/blob/${{ needs.get_latest.outputs.latest }}/jgrpp-changelog.md) for the changes in this release."
-          discussionCategory: "Releases"
+          discussionCategory: "~Releases"
           makeLatest: true
           removeArtifacts: true
           tag: ${{ needs.get_latest.outputs.latest }}
