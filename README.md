@@ -4,7 +4,7 @@ Check the wiki for information on running
 <details>
 <summary>OpenTTD-patches README</summary>
 
-## JGR's Patchpack version 0.58.0
+## JGR's Patchpack version 0.58.1
 
 This is a collection of patches applied to [OpenTTD](http://www.openttd.org/)
 
