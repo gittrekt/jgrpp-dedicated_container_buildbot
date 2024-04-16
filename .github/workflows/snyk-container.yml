@@ -29,6 +29,31 @@ permissions:
   contents: read
 
 jobs:
+  get_latest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: get versions
+        id: get_latest
+        run: |
+          LOCAL_VERSION=$(/usr/bin/git describe --tags --abbrev=0)
+          LATEST=$(curl -s -H 'Accept: application/vnd.github.v3+json' https://api.github.com/repos/JGRennison/OpenTTD-patches/releases | jq -cMr '([.[]|select(all(.tag_name; contains("beta")|not))])|.[:1]|.[].tag_name')
+          echo "local_version=${LOCAL_VERSION#jgrpp-}" >> $GITHUB_OUTPUT
+          echo "latest=${LATEST}" >> $GITHUB_OUTPUT
+          echo "latest_short=${LATEST#jgrpp-}" >> $GITHUB_OUTPUT
+          echo "latest_gfx=$(curl -s -H 'Accept: application/vnd.github.v3+json' https://api.github.com/repos/OpenTTD/OpenGFX/releases | jq -cMr '([.[]|select(all(.tag_name; contains("beta")|not))])|.[:1]|.[].tag_name')" >> $GITHUB_OUTPUT
+
+    outputs:
+      local_version: ${{ steps.get_latest.outputs.local_version }}
+      latest: ${{ steps.get_latest.outputs.latest }}
+      latest_short: ${{ steps.get_latest.outputs.latest_short }}
+      latest_gfx: ${{ steps.get_latest.outputs.latest_gfx }}
+
   snyk:
     permissions:
       contents: read # for actions/checkout to fetch code
@@ -36,9 +61,35 @@ jobs:
       actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Build a Docker image
-      run: docker pull ${{ env.REGISTRY_IMAGE }}
+    - name: Checkout local
+      uses: actions/checkout@v4
+
+    - name: Checkout OpenTTD-patches
+      uses: actions/checkout@v4
+      with:
+        repository: 'JGRennison/OpenTTD-patches'
+        ref: ${{ needs.get_latest.outputs.latest }}
+        path: OpenTTD-patches
+
+    - name: Set up Qemu
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and load
+      id: build-load
+      uses: docker/build-push-action@v5
+      with:
+        file: Dockerfile
+        context: .
+        build-args: OPENGFX_VERSION=${{ needs.get_latest.outputs.latest_gfx }}
+        pull: true
+        cache-from: type=gha
+        load: true
+        tags: ${{ env.REGISTRY_IMAGE }}:latest
+
     - name: Run Snyk to check Docker image for vulnerabilities
       # Snyk can be used to break the build when it detects vulnerabilities.
       # In this case we want to upload the issues to GitHub Code Scanning
@@ -52,6 +103,7 @@ jobs:
       with:
         image: ${{ env.REGISTRY_IMAGE }}
         args: --file=Dockerfile
+
     - name: Upload result to GitHub Code Scanning
       uses: github/codeql-action/upload-sarif@v3
       with:
