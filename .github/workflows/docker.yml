@@ -212,6 +212,7 @@ jobs:
       - name: Update and push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILE_TO_COMMIT: README.md
           DESTINATION_BRANCH: main
         run: |
