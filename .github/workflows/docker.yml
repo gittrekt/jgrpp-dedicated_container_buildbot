@@ -209,12 +209,7 @@ jobs:
           tag: ${{ needs.get_latest.outputs.latest }}
 
       # TODO: Probably could be done more elegantly... 
-      - name: Update and push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FILE_TO_COMMIT: README.md
-          DESTINATION_BRANCH: main
+      - name: Update and push README
         run: |
           echo "## [JGRennison/OpenTTD-patches](https://github.com/JGRennison/OpenTTD-patches/) Containerized Dedicated Server  " > README.md
           echo "Check the wiki for information on running  " >> README.md
@@ -224,13 +219,8 @@ jobs:
           echo "" >> README.md
           echo "$(cat OpenTTD-patches/README.md)" >> README.md
           echo "</details>" >> README.md
-          export MESSAGE="chore: Update README.md with release ${{ needs.get_latest.outputs.latest }}"
-          export SHA=$( git rev-parse $DESTINATION_BRANCH:$FILE_TO_COMMIT )
-          export CONTENT=$( base64 -i $FILE_TO_COMMIT )
-          gh api --method PUT /repos/:owner/:repo/contents/$FILE_TO_COMMIT \
-            --field message="$MESSAGE" \
-            --field content="$CONTENT" \
-            --field encoding="base64" \
-            --field branch="$DESTINATION_BRANCH" \
-            --field sha="$SHA"
-          gh cache delete --all
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add README.md
+          git commit -m "chore: Update README.md with release ${{ needs.get_latest.outputs.latest }}"
+          git push
