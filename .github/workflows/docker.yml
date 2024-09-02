@@ -210,8 +210,12 @@ jobs:
 
       # TODO: Probably could be done more elegantly... 
       - name: Update and push README
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "## [JGRennison/OpenTTD-patches](https://github.com/JGRennison/OpenTTD-patches/) Containerized Dedicated Server  " > README.md
+          echo "[![Docker Image CI](https://github.com/gittrekt/jgrpp-dedicated_container_buildbot/actions/workflows/docker.yml/badge.svg)](https://github.com/gittrekt/jgrpp-dedicated_container_buildbot/actions/workflows/docker.yml)" >> README.md
+          echo "" >> README.md
           echo "Check the wiki for information on running  " >> README.md
           echo "" >> README.md
           echo "<details>" >> README.md
@@ -219,6 +223,9 @@ jobs:
           echo "" >> README.md
           echo "$(cat OpenTTD-patches/README.md)" >> README.md
           echo "</details>" >> README.md
+          export MESSAGE="chore: Update README.md with release ${{ needs.get_latest.outputs.latest }}"
+          export SHA=$( git rev-parse $DESTINATION_BRANCH:$FILE_TO_COMMIT )
+          export CONTENT=$( base64 -i $FILE_TO_COMMIT )
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add README.md
