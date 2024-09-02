@@ -4,7 +4,7 @@ Check the wiki for information on running
 <details>
 <summary>OpenTTD-patches README</summary>
 
-## JGR's Patchpack version 0.60.2
+## JGR's Patchpack version 0.61.0
 
 This is a collection of features and other modifications applied to [OpenTTD](http://www.openttd.org/).  
 It's a separate version of the game which can be installed and played alongside the standard game, not a loadable mod (NewGRF, script, or so on).
@@ -212,6 +212,7 @@ The TT-Forums thread for this patchpack can be found [here](http://www.tt-forums
 #### Industries
 
 * Allow linking only inputs or outputs to the smallmap and map mode viewports in the industry chain window.
+* Add setting to scale the industry event rate.
 
 #### Map and Landscaping
 
@@ -265,6 +266,7 @@ The TT-Forums thread for this patchpack can be found [here](http://www.tt-forums
 * Add setting to increase the size of the main toolbar.
 * Add cargo filtering and a show by cargo mode to the company delivered cargo graph.
 * Add setting to display the area outside of the map as water.
+* Add ctrl-clicking sign in sign list window to open extra viewport at sign coordinates.
 
 #### Limits
 
@@ -278,7 +280,7 @@ The TT-Forums thread for this patchpack can be found [here](http://www.tt-forums
 
 #### Time and Date
 
-* [Variable day length](http://www.tt-forums.net/viewtopic.php?p=1148227#p1148227).
+* [Economy speed reduction factor](http://www.tt-forums.net/viewtopic.php?p=1148227#p1148227).
 * Add settings to show time in hours and minutes as well as or instead of days.
 
 #### Multiplayer
@@ -603,6 +605,9 @@ See `src/3rdparty/monocypher/LICENSE.md` for the complete license text.
 
 The OpenTTD Social Integration API in `src/3rdparty/openttd_social_integration_api` is licensed under the MIT license.
 See `src/3rdparty/openttd_social_integration_api/LICENSE` for the complete license text.
+
+The atomic datatype support detection in `cmake/3rdparty/llvm/CheckAtomic.cmake` is licensed under the Apache 2.0 license.
+See `cmake/3rdparty/llvm/LICENSE.txt` for the complete license text.
 
 ## 4.0 Credits
 
