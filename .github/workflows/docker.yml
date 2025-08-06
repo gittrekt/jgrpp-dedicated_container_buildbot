@@ -146,7 +146,7 @@ jobs:
     if: ${{ ((github.event_name == 'workflow_dispatch') || ((needs.get_latest.outputs.latest_short != needs.get_latest.outputs.local_version) && contains(join(needs.*.result, ','), 'success'))) }}
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: /tmp/digests
           pattern: digests-*
@@ -191,7 +191,7 @@ jobs:
           path: OpenTTD-patches
 
       - name: Download release artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: /tmp/gzs
           pattern: ${{ needs.get_latest.outputs.latest }}-*
