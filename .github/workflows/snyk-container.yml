@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -61,10 +61,10 @@ jobs:
     needs: get_latest
     steps:
     - name: Checkout local
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Checkout OpenTTD-patches
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: 'JGRennison/OpenTTD-patches'
         ref: ${{ needs.get_latest.outputs.latest }}
