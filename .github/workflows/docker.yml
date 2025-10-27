@@ -124,7 +124,7 @@ jobs:
           docker save ${{ needs.get_latest.outputs.latest }}-${{ env.PLATFORM_PAIR }} | gzip > /tmp/gzs/${{ needs.get_latest.outputs.latest }}-${{ env.PLATFORM_PAIR }}.tar.gz
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: digests-${{ env.PLATFORM_PAIR }}
           path: /tmp/digests/*
@@ -132,7 +132,7 @@ jobs:
           retention-days: 1
 
       - name: Upload release artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ needs.get_latest.outputs.latest }}-${{ env.PLATFORM_PAIR }}.tar.gz
           path: /tmp/gzs/*
