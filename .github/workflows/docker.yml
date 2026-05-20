@@ -202,16 +202,18 @@ jobs:
           pattern: ${{ needs.get_latest.outputs.latest }}-*
           merge-multiple: true
 
-      - uses: ncipollo/release-action@v1
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          allowUpdates: true
-          artifactErrorsFailBuild: true
-          artifacts: "/tmp/gzs/*.tar.gz,OpenTTD-patches/jgrpp-changelog.md"
-          body: "See the [changelog](https://github.com/JGRennison/OpenTTD-patches/blob/${{ needs.get_latest.outputs.latest }}/jgrpp-changelog.md) for the changes in this release."
-          discussionCategory: "~Releases"
-          makeLatest: true
-          removeArtifacts: true
-          tag: ${{ needs.get_latest.outputs.latest }}
+          tag_name: ${{ needs.get_latest.outputs.latest }}
+          release_name: ${{ needs.get_latest.outputs.latest }}
+          body: |
+            body: "See the [changelog](https://github.com/JGRennison/OpenTTD-patches/blob/${{ needs.get_latest.outputs.latest }}/jgrpp-changelog.md) for the changes in this release."
+          draft: false
+          prerelease: false
 
       # TODO: Probably could be done more elegantly... 
       - name: Update and push README
