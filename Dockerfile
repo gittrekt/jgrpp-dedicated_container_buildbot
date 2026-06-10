@@ -1,5 +1,5 @@
 # Start with alpine for musl compile
-FROM alpine:3.23 as builder
+FROM alpine:3.24 as builder
 
 ARG OPENGFX_VERSION=7.1
 
