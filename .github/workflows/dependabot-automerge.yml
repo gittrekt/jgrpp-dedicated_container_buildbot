@@ -1,4 +1,6 @@
 name: Dependabot Auto-Merge & Smoke Test
+permissions:
+  contents: read
 
 on:
   pull_request:
@@ -10,6 +12,8 @@ jobs:
   smoke-test:
     name: Build & Smoke Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - name: Checkout repository
