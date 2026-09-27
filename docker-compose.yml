@@ -1,0 +1,36 @@
+services:
+  openttd:
+    image: gittrekt/jgrpp-dedicated:latest
+    container_name: openttd-jgrpp
+    restart: unless-stopped
+    ports:
+      - "3979:3979/tcp"
+      - "3979:3979/udp"
+    volumes:
+      # Mount host OpenTTD data directory (baseset, save, scenario, content_download, newgrf, scripts)
+      - ${HOME}/.local/share/openttd:/openttd_data
+      # Mount host OpenTTD configuration file
+      - ${HOME}/.config/openttd/openttd.cfg:/openttd_data/openttd.cfg:ro
+      # (Optional) Mount private.cfg (server name, etc.) and secrets.cfg (passwords, company encryption)
+      # - ${HOME}/.config/openttd/private.cfg:/openttd_data/private.cfg:ro
+      # - ${HOME}/.config/openttd/secrets.cfg:/openttd_data/secrets.cfg:ro
+    # Healthcheck: verifies that OpenTTD is listening on TCP port 3979
+    healthcheck:
+      test: ["CMD", "/openttd/healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    # The image ENTRYPOINT is:
+    #   [ "/openttd/openttd", "-D", "-c", "/openttd_data/openttd.cfg", "-x", "-g" ]
+    # The 'command' directive appends directly after '-g'.
+    # Specify the map/save file relative to /openttd_data (or absolute inside container):
+    command: ["save/example.sav"]
+
+    # If you want to supply additional command-line flags (e.g. debug flags):
+    # command: ["save/example.sav", "-d", "net=1"]
+
+    # Alternatively, to override the entrypoint completely:
+    # entrypoint: ["/openttd/openttd"]
+    # command: ["-D", "-c", "/openttd_data/openttd.cfg", "-x", "-g", "save/example.sav"]

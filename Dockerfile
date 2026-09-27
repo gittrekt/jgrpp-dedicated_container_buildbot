@@ -1,5 +1,5 @@
 # Start with alpine for musl compile
-FROM alpine:3.24 as builder
+FROM alpine:3.24 AS builder
 
 ARG OPENGFX_VERSION=7.1
 
@@ -58,6 +58,10 @@ RUN mkdir -p /openttd && \
   mv scripts /openttd && \
   chmod +x /openttd/openttd
 
+RUN printf '#include <sys/socket.h>\n#include <netinet/in.h>\n#include <arpa/inet.h>\n#include <unistd.h>\nint main(){\n    int s = socket(AF_INET, SOCK_STREAM, 0);\n    if (s < 0) return 1;\n    struct sockaddr_in a = {\n        .sin_family = AF_INET,\n        .sin_port = htons(3979),\n        .sin_addr.s_addr = htonl(INADDR_LOOPBACK)\n    };\n    int r = connect(s, (struct sockaddr*)&a, sizeof(a));\n    close(s);\n    return (r == 0) ? 0 : 1;\n}\n' > /tmp/healthcheck.c \
+  && gcc -static -O2 -s /tmp/healthcheck.c -o /openttd/healthcheck \
+  && chmod 755 /openttd/healthcheck
+
 RUN mkdir -p /requirements \
   && ldd /openttd/openttd | awk 'NF == 4 { system("cp --parents " $3 " /requirements") }'
 
@@ -79,5 +83,8 @@ EXPOSE 3979/udp
 STOPSIGNAL 3
 
 USER openttd
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD [ "/openttd/healthcheck" ]
 
 ENTRYPOINT [ "/openttd/openttd", "-D", "-c", "/openttd_data/openttd.cfg", "-x", "-g" ]

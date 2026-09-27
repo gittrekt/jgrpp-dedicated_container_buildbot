@@ -1,0 +1,53 @@
+[Unit]
+Description=OpenTTD JGRPP Dedicated Server
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=openttd-jgrpp
+Image=docker.io/gittrekt/jgrpp-dedicated:latest
+
+# Map container user (UID/GID 901) to host user so saves & files retain host ownership
+UserNS=keep-id:uid=901,gid=901
+
+# Mount your OpenTTD data directory (saves, scenarios, content_download, newgrf, scripts)
+Volume=%h/.local/share/openttd:/openttd_data:Z
+
+# Mount your openttd.cfg configuration file
+Volume=%h/.config/openttd/openttd.cfg:/openttd_data/openttd.cfg:Z
+# (Optional) Mount private.cfg (server name, etc.) and secrets.cfg (passwords, company encryption)
+# Volume=%h/.config/openttd/private.cfg:/openttd_data/private.cfg:Z
+# Volume=%h/.config/openttd/secrets.cfg:/openttd_data/secrets.cfg:Z
+
+# Expose OpenTTD dedicated server multiplayer ports (TCP/UDP 3979)
+PublishPort=3979:3979/tcp
+PublishPort=3979:3979/udp
+
+# Healthcheck: verifies that OpenTTD is listening on TCP port 3979
+HealthCmd=/openttd/healthcheck
+HealthInterval=30s
+HealthTimeout=5s
+HealthStartPeriod=10s
+HealthRetries=3
+
+# ENTRYPOINT in the container image is:
+#   [ "/openttd/openttd", "-D", "-c", "/openttd_data/openttd.cfg", "-x", "-g" ]
+# In Quadlet, Exec= appends arguments directly to the ENTRYPOINT (after -g).
+# To load a specific savegame, scenario, or map, specify its path relative
+# to /openttd_data (or absolute inside container):
+Exec="save/example.sav"
+
+# If you want to supply additional command-line flags (such as debug facility levels),
+# append them after the map parameter, e.g.:
+# Exec="save/example.sav" -d net=1
+
+# Alternatively, if you want full control over the command line instead of the default ENTRYPOINT:
+# Entrypoint=/openttd/openttd
+# Exec=-D -c /openttd_data/openttd.cfg -x -g "save/example.sav" -d net=1
+
+[Service]
+Restart=on-failure
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target
