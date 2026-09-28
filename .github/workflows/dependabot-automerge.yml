@@ -17,7 +17,7 @@ jobs:
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Get latest OpenTTD and OpenGFX versions
         id: get_versions
@@ -28,7 +28,7 @@ jobs:
           echo "latest_gfx=${LATEST_GFX}" >> $GITHUB_OUTPUT
 
       - name: Checkout OpenTTD-patches
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: 'JGRennison/OpenTTD-patches'
           ref: ${{ steps.get_versions.outputs.latest }}
