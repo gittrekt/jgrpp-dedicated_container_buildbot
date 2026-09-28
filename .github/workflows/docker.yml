@@ -104,41 +104,17 @@ jobs:
           sbom: true
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
-      - name: Build and load
-        id: build-load
-        uses: docker/build-push-action@v7
-        with:
-          file: Dockerfile
-          context: .
-          platforms: ${{ matrix.platform }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: OPENGFX_VERSION=${{ needs.get_latest.outputs.latest_gfx }}
-          pull: true
-          cache-from: type=gha
-          load: true
-          tags: ${{ needs.get_latest.outputs.latest }}-${{ env.PLATFORM_PAIR }}
-
       - name: Export digest
         run: |
           mkdir -p /tmp/digests
-          mkdir -p /tmp/gzs
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
-          docker save ${{ needs.get_latest.outputs.latest }}-${{ env.PLATFORM_PAIR }} | gzip > /tmp/gzs/${{ needs.get_latest.outputs.latest }}-${{ env.PLATFORM_PAIR }}.tar.gz
 
       - name: Upload digest
         uses: actions/upload-artifact@v7
         with:
           name: digests-${{ env.PLATFORM_PAIR }}
           path: /tmp/digests/*
-          if-no-files-found: error
-          retention-days: 1
-
-      - name: Upload release artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ needs.get_latest.outputs.latest }}-${{ env.PLATFORM_PAIR }}.tar.gz
-          path: /tmp/gzs/*
           if-no-files-found: error
           retention-days: 1
 
@@ -195,31 +171,11 @@ jobs:
           ref: ${{ needs.get_latest.outputs.latest }}
           path: OpenTTD-patches
 
-      - name: Download release artifacts
-        uses: actions/download-artifact@v8
-        with:
-          path: /tmp/gzs
-          pattern: ${{ needs.get_latest.outputs.latest }}-*
-          merge-multiple: true
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ needs.get_latest.outputs.latest }}
-          release_name: ${{ needs.get_latest.outputs.latest }}
-          body: |
-            body: "See the [changelog](https://github.com/JGRennison/OpenTTD-patches/blob/${{ needs.get_latest.outputs.latest }}/jgrpp-changelog.md) for the changes in this release."
-          draft: false
-          prerelease: false
-
       # TODO: Probably could be done more elegantly... 
-      - name: Update and push README
+      - name: Update README and push tag
         run: |
           echo "## [JGRennison/OpenTTD-patches](https://github.com/JGRennison/OpenTTD-patches/) Containerized Dedicated Server  " > README.md
-          echo "Check the wiki for information on running  " >> README.md
+          echo "Check the Podman openttd-jgrpp.container or docker-compose.yml for example on running  " >> README.md
           echo "" >> README.md
           echo "<details>" >> README.md
           echo "<summary>OpenTTD-patches README</summary>" >> README.md
@@ -230,4 +186,5 @@ jobs:
           git config user.email github-actions@github.com
           git add README.md
           git commit -m "chore: Update README.md with release ${{ needs.get_latest.outputs.latest }}"
-          git push
+          git tag "${{ needs.get_latest.outputs.latest }}"
+          git push origin main --tags
