@@ -1,5 +1,5 @@
 ## [JGRennison/OpenTTD-patches](https://github.com/JGRennison/OpenTTD-patches/) Containerized Dedicated Server  
-Check the wiki for information on running  
+Check the Podman openttd-jgrpp.container or docker-compose.yml for example on running  
 
 <details>
 <summary>OpenTTD-patches README</summary>
